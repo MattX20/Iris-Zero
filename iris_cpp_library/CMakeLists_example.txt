@@ -1,0 +1,42 @@
+cmake_minimum_required(VERSION 3.4)
+
+set(CMAKE_C_COMPILER "gcc")
+set(CMAKE_CXX_COMPILER "g++")
+
+project(iris)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)  # enable fPIC
+
+set(CMAKE_PREFIX_PATH "/path/to/python/site-packages/") # Add path to the virtual environnement here.
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${CMAKE_SOURCE_DIR}/external/libtorch")
+
+find_package(pybind11 REQUIRED)
+find_package(Torch REQUIRED)
+
+include_directories(include)
+
+add_library(iris_lib
+    src/constants.cpp
+    src/move_iterator.cpp
+    src/random_bot.cpp
+    src/minmax_bot.cpp
+    src/mcts_bot.cpp
+    src/iris_zero.cpp
+)
+
+target_link_libraries(iris_lib ${TORCH_LIBRARIES})
+
+
+pybind11_add_module(py_iris python_bindings/py_iris.cpp)
+target_link_libraries(py_iris PRIVATE iris_lib pybind11::module ${TORCH_LIBRARIES})
+
+find_library(TORCH_PYTHON_LIBRARY torch_python HINTS "${TORCH_INSTALL_PREFIX}/lib")
+if (TORCH_PYTHON_LIBRARY)
+    message(STATUS "Found torch_python library: ${TORCH_PYTHON_LIBRARY}")
+    target_link_libraries(py_iris PRIVATE ${TORCH_PYTHON_LIBRARY})
+else()
+    message(FATAL_ERROR "torch_python library not found")
+endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")

@@ -14,7 +14,7 @@ from iris_python_code.model_utils.transformations.transformations import transfo
 
 def create_model(nb_res_blocks, embedding_size) :
     """
-    Instanciate an IrisZero model with a given number of res blocks and an embeddin size.
+    Instanciate an IrisZero model with a given number of res blocks and an embedding size.
     See 'iris_python_code.model_utils.model.IrisZeroNN.py'.
     """
     nb_features = NB_FEATURES
